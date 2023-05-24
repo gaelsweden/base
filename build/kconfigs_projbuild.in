@@ -1,0 +1,7 @@
+source "C:/Users/Mod_loc/esp/esp-idf/components/app_update/Kconfig.projbuild"
+source "C:/Users/Mod_loc/esp/esp-idf/components/bootloader/Kconfig.projbuild"
+source "C:/Users/Mod_loc/esp/esp-idf/components/esp_rom/Kconfig.projbuild"
+source "C:/Users/Mod_loc/esp/esp-idf/components/esptool_py/Kconfig.projbuild"
+source "C:/Users/Mod_loc/esp/esp-idf/components/partition_table/Kconfig.projbuild"
+source "C:/WRK-ESP/Base/main/Kconfig.projbuild"
+source "C:/WRK-ESP/Base/components/arduino/Kconfig.projbuild"
