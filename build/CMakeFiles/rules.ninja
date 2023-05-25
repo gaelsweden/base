@@ -1594,7 +1594,7 @@ rule C_STATIC_LIBRARY_LINKER____idf_arduino_
 # Rule for re-running cmake.
 
 rule RERUN_CMAKE
-  command = C:\Users\Mod_loc\.espressif\tools\cmake\3.23.1\bin\cmake.exe --regenerate-during-build -SC:\WRK-ESP\Base -BC:\WRK-ESP\Base\build
+  command = C:\Users\Mod_loc\.espressif\tools\cmake\3.23.1\bin\cmake.exe --regenerate-during-build -SC:\Capou\base -BC:\Capou\base\build
   description = Re-running CMake...
   generator = 1
 

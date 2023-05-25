@@ -1,4 +1,4 @@
-# Install script for directory: C:/WRK-ESP/Base/components/arduino
+# Install script for directory: C:/Capou/base/components/arduino
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
