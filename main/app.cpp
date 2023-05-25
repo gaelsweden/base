@@ -104,7 +104,6 @@ void _AppLoRaTask(void*pV){
     unsigned long lElapsedTime;
     unsigned long lCurrentTime;
     int address[APP_LORA_PROBE_NB];
-    char msgAddress[20];
     int k;
 
     ESP_LOGI(TAG, "----------- ENTERING _AppLoRaTask() ------------");

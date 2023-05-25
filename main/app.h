@@ -19,7 +19,7 @@ extern "C" {
 #define APP_SENDING_MESSAGE_STR         ("LoRa Base Station")
 #define APP_TAG_STR                     ("[$BASE-APP$]:")
 
-#define APP_LORA_PROBE_NB               (10)
+#define APP_LORA_PROBE_NB               (30)
 
 /*********** LoRa host station addresses definition *****************************/
 #define APP_LORA_HOST_ADDRESS           (0x10)  /* address of this module       */
