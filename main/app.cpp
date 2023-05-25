@@ -113,12 +113,11 @@ void _AppLoRaTask(void*pV){
         address[k] = 0;
     }
 
-    for(uint32_t cpt=0;;){  /******** freeRTOS task perpetual loop **************************************************************/
-        
+    for(uint32_t cpt=0;;){  /******** freeRTOS task perpetual loop **************************************************************/        
         vTaskDelay(50 / portTICK_PERIOD_MS);    /* the task takes place every 50 ms i.e. task sleeps most of the time           */
         lCurrentTime = (unsigned long)(esp_timer_get_time() / 1000ULL); /* get the current kernel time in milliseconds          */
         lElapsedTime =  lCurrentTime - lBaseTime;                  /* processing the elapsed time since the last task execution */
-        
+
         /******** Tx Task Processing Section ************************************************************************************/
         if(lElapsedTime>=APP_SENDING_INTERVAL_MS){      /* if it's time to process sending task...                              */
             lBaseTime = lCurrentTime;                   /* updating the current time (for the next task execution)              */
@@ -132,14 +131,14 @@ void _AppLoRaTask(void*pV){
                         if(address[k] == 0){                            /* saves address if not saved before                    */
                             address[k] = k+1;                           /* gives last numbers of address                        */
                             sprintf(buf, "%d", address[k]);             /* saves address in order to send it back               */
-                            printf("Address saved: %s\n", buf);
+                            printf("Address saved: %s\n", buf);         /* confirming address has been saved                    */
                             k = APP_LORA_REQUEST_ADDRESS+1;             /* if address saved, then no need to continue           */     
                         }
                     }
                     mBitsClr(app.m_uStatus, ST_LORA_MODULE_REQUEST_ADDRESS);
                 }
-                /****************************************************************************************************************/
 
+                /****************************************************************************************************************/
                 LoRaWriteByte(APP_LORA_REMOTE_ADDRESS);      /* write the module destination address to LoRa Tx FIFO            */
                 LoRaWriteByte(APP_LORA_HOST_ADDRESS);       /* write the module source address to LoRa Tx FIFO                  */
                 LoRaWriteByte(msgLen=(uint8_t)strnlen(buf, 250));   /* write the data message string length to the Tx FIFO      */
@@ -149,7 +148,6 @@ void _AppLoRaTask(void*pV){
                 LoRaWriteByte('\0');        /* write the null string terminator to the LoRa Tx FIFO                             */
                 LoRaEndPacket(TRUE);        /* ending the Tx data packet session, triggering LoRa Tx data packet on radio       */
                 ESP_LOGI(TAG, "Sent data to 0x%02x [%s]", APP_LORA_REMOTE_ADDRESS, buf); /*                                     */
-
             }   /*                                                                                                              */
         }   /*                                                                                                                  */
         /************************************************************************************************************************/
@@ -181,24 +179,6 @@ void _AppLoRaTask(void*pV){
                 if((atoi(data)) == APP_LORA_REQUEST_ADDRESS){
                     mBitsSet(app.m_uStatus, ST_LORA_MODULE_REQUEST_ADDRESS);
                 }
-                 
-
-
-                // /* Sending address back to module *******************************************************************************/
-                // _AppLoRaSetTxMode();                    /* signaling the App Tx status and setting LoRa module for Tx action    */
-                // LoRaWriteByte(APP_LORA_REMOTE_ADDRESS);             /* write the module destination address to LoRa Tx FIFO     */
-                // LoRaWriteByte(APP_LORA_HOST_ADDRESS);               /* write the module source address to LoRa Tx FIFO          */
-                // LoRaWriteByte(msgLen=(uint8_t)strnlen(buf, 250));   /* write the data message string length to the Tx FIFO      */
-                // for(int k=0; k<msgLen; ++k){                        /* loop for...                                              */
-                //     LoRaWriteByte(buf[k]);                          /* ...writing the data message string bytes to the Tx FIFO  */
-                // }                                                   /*                                                          */
-                // LoRaWriteByte('\0');                                /* write the null string terminator to the LoRa Tx FIFO     */
-                // LoRaEndPacket(TRUE);            /* ending the Tx data packet session, triggering LoRa Tx data packet on radio   */
-                // ESP_LOGI(TAG, "Sent data to 0x%02x [%s]", APP_LORA_REMOTE_ADDRESS, buf); /*                                     */
-                // /****************************************************************************************************************/
-
-
-
             }   /*                                                                                                              */
             mBitsClr(app.m_uStatus, ST_LORA_MODULE_RX_DONE_TRIGGERED);  /* acknowledging the Rx done event                      */            
         }/*                                                                                                                     */
