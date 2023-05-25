@@ -133,6 +133,9 @@ void _AppLoRaTask(void*pV){
                             address[k] = k+1;                           /* gives last numbers of address                        */
                             sprintf(buf, "%d", address[k]);             /* saves address in order to send it back               */
                             strcpy(add, add1);                          /* adding '0x' in a variable                            */
+                            if(atoi(buf)<10){                           /* if 0x1 for example, turn it into 0x01                */
+                                strcat(add, "0");
+                            }
                             strcat(add, buf);                           /* compiling '0x' and 'data' to save address            */
                             printf("Address saved: %s\n", add);
 
