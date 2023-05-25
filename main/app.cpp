@@ -104,6 +104,8 @@ void _AppLoRaTask(void*pV){
     unsigned long lElapsedTime;
     unsigned long lCurrentTime;
     int address[APP_LORA_PROBE_NB];
+    char add[131];
+    char add1[3] = "0x";
     int k;
 
     ESP_LOGI(TAG, "----------- ENTERING _AppLoRaTask() ------------");
@@ -130,8 +132,11 @@ void _AppLoRaTask(void*pV){
                         if(address[k] == 0){                            /* saves address if not saved before                    */
                             address[k] = k+1;                           /* gives last numbers of address                        */
                             sprintf(buf, "%d", address[k]);             /* saves address in order to send it back               */
-                            printf("Address saved: %s\n", buf);         /* confirming address has been saved                    */
-                            k = APP_LORA_REQUEST_ADDRESS+1;             /* if address saved, then no need to continue           */     
+                            strcpy(add, add1);                          /* adding '0x' in a variable                            */
+                            strcat(add, buf);                           /* compiling '0x' and 'data' to save address            */
+                            printf("Address saved: %s\n", add);
+
+                            k = APP_LORA_REQUEST_ADDRESS+1;             /* if address saved, then no need to continue           */  
                         }
                     }
                     mBitsClr(app.m_uStatus, ST_LORA_MODULE_REQUEST_ADDRESS);
