@@ -22,6 +22,7 @@
 
 #include "lora.h"
 #include "app.h"
+#include "connect_wifi.h"
 
 #define mBitsSet(f,m)       ((f)|=(m))
 #define mBitsClr(f,m)       ((f)&=(~(m)))
@@ -109,6 +110,9 @@ void _AppLoRaTask(void*pV){
     int k;
 
     ESP_LOGI(TAG, "----------- ENTERING _AppLoRaTask() ------------");
+
+    setup();
+    loop();
 
     for(k=0; k<APP_LORA_PROBE_NB; k++){
         address[k] = 0;
