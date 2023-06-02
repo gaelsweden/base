@@ -112,7 +112,7 @@ void _AppLoRaTask(void*pV){
 
     ESP_LOGI(TAG, "----------- ENTERING _AppLoRaTask() ------------");
 
-    /* Connecting to Wi-Fi network ****/
+    /* Connecting to Wi-Fi network ***/
     setup();
     loop();
 
