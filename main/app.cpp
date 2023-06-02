@@ -23,6 +23,7 @@
 #include "lora.h"
 #include "app.h"
 #include "connect_wifi.h"
+#include <WiFi.h>
 
 #define mBitsSet(f,m)       ((f)|=(m))
 #define mBitsClr(f,m)       ((f)&=(~(m)))
@@ -111,6 +112,7 @@ void _AppLoRaTask(void*pV){
 
     ESP_LOGI(TAG, "----------- ENTERING _AppLoRaTask() ------------");
 
+    /* Connecting to Wi-Fi network ****/
     setup();
     loop();
 
