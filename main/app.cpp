@@ -50,8 +50,6 @@ static struct s_app{
     APP_LORA_HOST_ADDRESS,
 };
 
-WiFiClass WiFi;
-
 /***** Private Function Prototype Declaration/Implementation Section ***************************/
 
 /************************************************************************************************
@@ -231,7 +229,7 @@ void AppInit(void){
 
     WiFi.mode(WIFI_STA);
     WiFi.begin(ssid, password);
-    Serial.println("Connecting to WiFi network");
+    Serial.println("\nConnecting to WiFi network");
     int timeout_counter = 0;
     
     while(WiFi.status() != WL_CONNECTED){
@@ -239,14 +237,13 @@ void AppInit(void){
         delay(200);
         timeout_counter++;
         if(timeout_counter >= APP_WIFI_CONNECTION_TIMEOUT*5){
-            ESP.restart();
+            ESP.restart();  /* restarting if connection time too long */
         }
     }
 
     Serial.println("\nConnected to the WiFi network");
     Serial.print("Local ESP32 IP: ");
-    Serial.println(WiFi.localIP());
-
+    Serial.println(WiFi.localIP()); /* getting IP */
     /************************************************************/
 }
 
