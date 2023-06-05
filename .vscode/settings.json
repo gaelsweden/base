@@ -12,7 +12,20 @@
     ],
     "idf.pythonBinPathWin": "C:\\Users\\Mod_loc\\.espressif\\python_env\\idf4.4_py3.8_env\\Scripts\\python.exe",
     "idf.toolsPathWin": "C:\\Users\\Mod_loc\\.espressif",
-    "idf.portWin": "COM12",
+    "idf.portWin": "COM11",
     "idf.monitorBaudRate": "115200",
-    "idf.flashType": "UART"
+    "idf.flashType": "UART",
+    "files.associations": {
+        "array": "c",
+        "deque": "c",
+        "list": "c",
+        "string": "c",
+        "unordered_map": "c",
+        "unordered_set": "c",
+        "vector": "c",
+        "string_view": "c",
+        "initializer_list": "c",
+        "regex": "c",
+        "*.ipp": "cpp"
+    }
 }
