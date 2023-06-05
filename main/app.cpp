@@ -19,11 +19,10 @@
 #include "soc/soc.h"
 #include "esp_log.h"
 #include "sdkconfig.h"
+#include <WiFi.h>
 
 #include "lora.h"
 #include "app.h"
-#include "connect_wifi.h"
-#include <WiFi.h>
 
 #define mBitsSet(f,m)       ((f)|=(m))
 #define mBitsClr(f,m)       ((f)&=(~(m)))
@@ -50,6 +49,8 @@ static struct s_app{
     ST_ALL_CLEARED,
     APP_LORA_HOST_ADDRESS,
 };
+
+WiFiClass WiFi;
 
 /***** Private Function Prototype Declaration/Implementation Section ***************************/
 
@@ -112,11 +113,7 @@ void _AppLoRaTask(void*pV){
 
     ESP_LOGI(TAG, "----------- ENTERING _AppLoRaTask() ------------");
 
-    /* Connecting to Wi-Fi network ***/
-    setup();
-    loop();
-
-    for(k=0; k<APP_LORA_PROBE_NB; k++){
+     for(k=0; k<APP_LORA_PROBE_NB; k++){
         address[k] = 0;
     }
 
@@ -223,6 +220,33 @@ void AppInit(void){
     LoRaOnReceive(_AppLoRaRxCallback);                  /*      */
     LoRaOnTxDone(_AppLoRaTxCallback);                   /*      */
     LoRaEnableCrc();                                    /*      */
+    /************************************************************/
+
+    /******* Initializes Wi-Fi **********************************/
+    const char* ssid = APP_WIFI_SSID;
+    const char* password = APP_WIFI_PASSWORD;
+    
+    Serial.begin(115200);
+    delay(1000);
+
+    WiFi.mode(WIFI_STA);
+    WiFi.begin(ssid, password);
+    Serial.println("Connecting to WiFi network");
+    int timeout_counter = 0;
+    
+    while(WiFi.status() != WL_CONNECTED){
+        Serial.print(".");
+        delay(200);
+        timeout_counter++;
+        if(timeout_counter >= APP_WIFI_CONNECTION_TIMEOUT*5){
+            ESP.restart();
+        }
+    }
+
+    Serial.println("\nConnected to the WiFi network");
+    Serial.print("Local ESP32 IP: ");
+    Serial.println(WiFi.localIP());
+
     /************************************************************/
 }
 

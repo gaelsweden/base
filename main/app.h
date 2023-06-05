@@ -32,8 +32,13 @@ extern "C" {
 #define APP_LORA_BANDWIDTH_FREQUENCY    (62.5E3)
 #define APP_LORA_CODING_RATE            (6)
 
-/*********** LoRa module requests *********************************************/
+/*********** LoRa module requests ***********************************************/
 #define APP_LORA_REQUEST_ADDRESS        (15)
+
+/*********** WiFi parameters ****************************************************/
+#define APP_WIFI_SSID                       ("BTS_SN_IoT")
+#define APP_WIFI_PASSWORD                   ("BOU_BTS_SN")
+#define APP_WIFI_CONNECTION_TIMEOUT         (10)
 
 /********************************************************************************/
 
