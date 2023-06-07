@@ -24,6 +24,8 @@
 #include "lora.h"
 #include "app.h"
 
+#include "get.h"
+
 #define mBitsSet(f,m)       ((f)|=(m))
 #define mBitsClr(f,m)       ((f)&=(~(m)))
 #define mBitsTgl(f,m)       ((f)^=(m))
@@ -262,6 +264,37 @@ void AppRun(void){
     xTaskCreate(_AppLoRaTask, NULL, 4096, NULL, 5, NULL);   /* creates the freeRTOS LoRa processing task    */
 
     for(uint32_t k=-1;;){   /* the main perpetual task loop */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        /***** Receiving JSON data via Wi-Fi to website ******************************/
+        GetLoop();
+        /*****************************************************************************/
+
+        /***** Sending JSON data via Wi-Fi to website ********************************/
+
+        /*****************************************************************************/
+
+
+
+
+
+
+
         /***** Doing the flashing led processor activity *****************************/
         static const uint32_t ledSeq[]={40,90,40,3500,0};
         if(ledSeq[++k]==0) k=0;
