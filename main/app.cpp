@@ -244,6 +244,8 @@ void AppInit(void){
     Serial.println("\nConnected to the WiFi network");
     Serial.print("Local ESP32 IP: ");
     Serial.println(WiFi.localIP()); /* getting IP */
+    Serial.print("ESP32 MAC address: ");
+    Serial.println(WiFi.macAddress());
     /************************************************************/
 }
 
