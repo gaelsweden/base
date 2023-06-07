@@ -14,7 +14,7 @@
 #include <../components/Arduino_JSON/src/Arduino_JSON.h>
 
 //Your Domain name with URL path or IP address with path
-const char* serverName = "http://90.63.226.129:8001/bdd/valveState";
+const char* serverName = "http://90.63.226.129:8001/bdd/valveState/";
 
 // the following variables are unsigned longs because the time, measured in
 // milliseconds, will quickly become a bigger number than can be stored in an int.

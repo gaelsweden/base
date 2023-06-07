@@ -13,7 +13,7 @@
 // #include <HTTPClient.h>
 
 // //Your Domain name with URL path or IP address with path
-// const char* serverName = "http://192.168.1.106:1880/update-sensor";
+// const char* serverName = "http://90.63.226.129:8001/bdd/receiveData";
 
 // // the following variables are unsigned longs because the time, measured in
 // // milliseconds, will quickly become a bigger number than can be stored in an int.
