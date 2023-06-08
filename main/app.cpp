@@ -25,6 +25,7 @@
 #include "app.h"
 
 #include "get.h"
+#include "post.h"
 
 #define mBitsSet(f,m)       ((f)|=(m))
 #define mBitsClr(f,m)       ((f)&=(~(m)))
@@ -266,33 +267,11 @@ void AppRun(void){
     for(uint32_t k=-1;;){   /* the main perpetual task loop */
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         /***** Receiving JSON data via Wi-Fi to website ******************************/
         GetLoop();
+        /***** Sending JSON data to website via Wi-Fi ********************************/
+        PostLoop();
         /*****************************************************************************/
-
-        /***** Sending JSON data via Wi-Fi to website ********************************/
-
-        /*****************************************************************************/
-
-
-
-
-
 
 
         /***** Doing the flashing led processor activity *****************************/

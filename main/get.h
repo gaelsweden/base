@@ -14,27 +14,27 @@
 #include <../components/Arduino_JSON/src/Arduino_JSON.h>
 
 //Your Domain name with URL path or IP address with path
-const char* serverName = "http://90.63.226.129:8001/bdd/valveState/";
+const char* getServerName = "http://90.63.226.129:8001/bdd/valveState/";
 
 // the following variables are unsigned longs because the time, measured in
 // milliseconds, will quickly become a bigger number than can be stored in an int.
-unsigned long lastTime = 0;
+unsigned long getLastTime = 0;
 // Timer set to 10 minutes (600000)
 //unsigned long timerDelay = 600000;
 // Set timer to 5 seconds (5000)
-unsigned long timerDelay = 5000;
+unsigned long getTimerDelay = 5000;
 
 String sensorReadings;
 float sensorReadingsArr[3];
 
-String httpGETRequest(const char* serverName) {
+String httpGETRequest(const char* getServerName) {
   WiFiClient client;
   HTTPClient http;
 
-  serverName = serverName;
+//  serverName = serverName;
     
   // Your Domain name with URL path or IP address with path
-  http.begin(client, serverName);
+  http.begin(client, getServerName);
   
   // If you need Node-RED/server authentication, insert user and password below
   //http.setAuthorization("REPLACE_WITH_SERVER_USERNAME", "REPLACE_WITH_SERVER_PASSWORD");
@@ -61,11 +61,11 @@ String httpGETRequest(const char* serverName) {
 
 void GetLoop() {
   //Send an HTTP POST request every 10 minutes
-  if ((millis() - lastTime) > timerDelay) {
+  if ((millis() - getLastTime) > getTimerDelay) {
     //Check WiFi connection status
     if(WiFi.status()== WL_CONNECTED){
               
-      sensorReadings = httpGETRequest(serverName);
+      sensorReadings = httpGETRequest(getServerName);
       Serial.println(sensorReadings);
       JSONVar myObject = JSON.parse(sensorReadings);
   
@@ -88,16 +88,16 @@ void GetLoop() {
         Serial.println(value);
         sensorReadingsArr[i] = double(value);
       }
-      Serial.print("1 = ");
-      Serial.println(sensorReadingsArr[0]);
-      Serial.print("2 = ");
-      Serial.println(sensorReadingsArr[1]);
-      Serial.print("3 = ");
-      Serial.println(sensorReadingsArr[2]);
+      // Serial.print("1 = ");
+      // Serial.println(sensorReadingsArr[0]);
+      // Serial.print("2 = ");
+      // Serial.println(sensorReadingsArr[1]);
+      // Serial.print("3 = ");
+      // Serial.println(sensorReadingsArr[2]);
     }
     else {
       Serial.println("WiFi Disconnected");
     }
-    lastTime = millis();
+    getLastTime = millis();
   }
 }
