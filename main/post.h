@@ -52,6 +52,7 @@ void PostLoop() {
       //http.addHeader("Content-Type", "text/plain");
       //int httpResponseCode = http.POST("Hello, World!");
      
+      Serial.println("Processing POST request");
       Serial.print("HTTP Response code: ");
       Serial.println(httpResponseCode);
         

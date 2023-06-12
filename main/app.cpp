@@ -26,6 +26,7 @@
 
 #include "get.h"
 #include "post.h"
+#include "CLoRaGateway.h"
 
 #define mBitsSet(f,m)       ((f)|=(m))
 #define mBitsClr(f,m)       ((f)&=(~(m)))
@@ -163,6 +164,12 @@ void _AppLoRaTask(void*pV){
         }   /*                                                                                                                  */
         /************************************************************************************************************************/
 
+        /***** Sending JSON data to website via Wi-Fi ***************************************************************************/
+        PostLoop();
+        // CLoRaGateway obj;
+        // obj.WiFi_SendData(); /* test de la version de l'année dernière *******************************************************/
+        /************************************************************************************************************************/
+
         /******* LoRa Tx done event processing **********************************************************************************/
         if(mIsBitsSet(app.m_uStatus, ST_LORA_MODULE_TX_DONE_TRIGGERED)){    /* if LoRa Tx done event has occurred...            */
             mBitsClr(app.m_uStatus, ST_LORA_MODULE_TX_DONE_TRIGGERED);      /* acknowledging this event...                      */
@@ -195,9 +202,12 @@ void _AppLoRaTask(void*pV){
         }/*                                                                                                                     */
         /************************************************************************************************************************/
 
+        /***** Receiving JSON data via Wi-Fi from website ***********************************************************************/
+        GetLoop();
+        /************************************************************************************************************************/
+
     } /* []end of the perpetual loop    */
 }
-
 
 /************************************************************************************************
  * @brief Initializes the application App entity
@@ -252,7 +262,6 @@ void AppInit(void){
     /************************************************************/
 }
 
-
 /************************************************************************************************************
  * @brief The main application task, contains the main perpetual task loop
  */
@@ -267,12 +276,13 @@ void AppRun(void){
     for(uint32_t k=-1;;){   /* the main perpetual task loop */
 
 
-        /***** Receiving JSON data via Wi-Fi to website ******************************/
-        GetLoop();
-        /***** Sending JSON data to website via Wi-Fi ********************************/
-        PostLoop();
-        /*****************************************************************************/
-
+        /***** Receiving JSON data via Wi-Fi from website *************************************/
+        // GetLoop();
+        /***** Sending JSON data to website via Wi-Fi *****************************************/
+        // static const char *TAG = "[APP] Free memory: ";
+        // ESP_LOGI(TAG, "%d bytes", esp_get_free_heap_size()); /* to check how much free memory */
+        // PostLoop();
+        /**************************************************************************************/
 
         /***** Doing the flashing led processor activity *****************************/
         static const uint32_t ledSeq[]={40,90,40,3500,0};

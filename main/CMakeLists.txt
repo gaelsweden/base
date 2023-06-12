@@ -10,6 +10,7 @@ idf_component_register(SRCS "main.cpp"
                     INCLUDE_DIRS "."
                                 "../components/LoRa/"
                                 "../components/arduino/"
-                                "../components/ArduinoHttpClient"
-                                "../components/Arduino_JSON"
-                                "../components")
+                                "../components/ArduinoHttpClient/"
+                                "../components/Arduino_JSON/"
+                                "../components/"
+                                )

@@ -45,6 +45,7 @@ String httpGETRequest(const char* getServerName) {
   String payload = "{}"; 
   
   if (httpResponseCode>0) {
+    Serial.println("Processing GET request");
     Serial.print("HTTP Response code: ");
     Serial.println(httpResponseCode);
     payload = http.getString();
@@ -88,12 +89,7 @@ void GetLoop() {
         Serial.println(value);
         sensorReadingsArr[i] = double(value);
       }
-      // Serial.print("1 = ");
-      // Serial.println(sensorReadingsArr[0]);
-      // Serial.print("2 = ");
-      // Serial.println(sensorReadingsArr[1]);
-      // Serial.print("3 = ");
-      // Serial.println(sensorReadingsArr[2]);
+
     }
     else {
       Serial.println("WiFi Disconnected");
