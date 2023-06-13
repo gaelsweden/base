@@ -13,7 +13,7 @@
 #include <HTTPClient.h>
 
 //Your Domain name with URL path or IP address with path
-const char* postServerName = "http://90.63.226.129:8001/bdd/receiveData";
+const char* postServerName = "http://10.82.117.207:8000/bdd/receiveData/";
 
 // the following variables are unsigned longs because the time, measured in
 // milliseconds, will quickly become a bigger number than can be stored in an int.
@@ -45,8 +45,9 @@ void PostLoop() {
     //   int httpResponseCode = http.POST(httpRequestData);
       
     //   If you need an HTTP request with a content type: application/json, use the following:
-      http.addHeader("Content-Type", "application/json");
+      http.addHeader("Content-Type", "application/json");      
       int httpResponseCode = http.POST("{\"api_key\":\"tPmAT5Ab3j7F9\",\"sensor\":\"BME280\",\"value1\":\"24.25\",\"value2\":\"49.54\",\"value3\":\"1005.14\"}");
+      // int httpResponseCode = http.POST("{\"2\", \"4563\", \"3210\", \"30\", \"21\": \"25\", \"33\", \"9\"}");
 
       // If you need an HTTP request with a content type: text/plain
       //http.addHeader("Content-Type", "text/plain");
