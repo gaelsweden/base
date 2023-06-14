@@ -13,7 +13,7 @@
 #include <HTTPClient.h>
 
 //Your Domain name with URL path or IP address with path
-const char* postServerName = "http://10.82.117.207:8000/bdd/receiveData/";
+const char* postServerName = "http://10.82.117.207:8000/bdd/receiveData/"; /* serveur PC */
 
 // the following variables are unsigned longs because the time, measured in
 // milliseconds, will quickly become a bigger number than can be stored in an int.
