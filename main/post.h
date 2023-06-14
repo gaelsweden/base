@@ -23,7 +23,7 @@ unsigned long postLastTime = 0;
 // Set timer to 5 seconds (5000)
 unsigned long postTimerDelay = 5000;
 
-void PostLoop() {
+void PostLoop(char postData[200]) {
   //Send an HTTP POST request every 10 minutes
   if ((millis() - postLastTime) > postTimerDelay) {
     //Check WiFi connection status
@@ -37,10 +37,10 @@ void PostLoop() {
       
       /* Header for JSON request */
       http.addHeader("Content-Type", "application/json");      
-      // int httpResponseCode = http.POST("{\"api_key\":\"tPmAT5Ab3j7F9\",\"sensor\":\"BME280\",\"value1\":\"24.25\",\"value2\":\"49.54\",\"value3\":\"1005.14\"}");
       
       /* Data to be sent */
-      String jsonData = "{\"node_id\":\"0x0A\",\"longitude\":\"1456\",\"latitude\":\"7456\",\"internal_humidity\":\"13\",\"external_humidity\":\"25\",\"internal_temperature\":\"25\",\"external_temperature\":\"33\"}";
+      // String jsonData = "{\"node_id\":\"0x1B\",\"longitude\":\"1.313292\",\"latitude\":\"44.031909\",\"internal_humidity\":\"15\",\"external_humidity\":\"37\",\"internal_temperature\":\"27\",\"external_temperature\":\"33\"}"; /* to test and send random values */
+      String jsonData = postData;  /* to send data received from probe */
       int httpResponseCode = http.POST(jsonData); /* POST request */
      
       Serial.println("Processing POST request");
