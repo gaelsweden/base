@@ -31,27 +31,17 @@ void PostLoop() {
       WiFiClient client;
       HTTPClient http;
     
-      // Your Domain name with URL path or IP address with path
+      /* Your Domain name with URL path or IP address with path */
       http.begin(client, postServerName);
       
-      // If you need Node-RED/server authentication, insert user and password below
-      //http.setAuthorization("REPLACE_WITH_SERVER_USERNAME", "REPLACE_WITH_SERVER_PASSWORD");
       
-    //   // Specify content-type header
-    //   http.addHeader("Content-Type", "application/x-www-form-urlencoded");
-    //   // Data to send with HTTP POST
-    //   String httpRequestData = "api_key=tPmAT5Ab3j7F9&sensor=BME280&value1=24.25&value2=49.54&value3=1005.14";           
-    //   // Send HTTP POST request
-    //   int httpResponseCode = http.POST(httpRequestData);
-      
-    //   If you need an HTTP request with a content type: application/json, use the following:
+      /* Header for JSON request */
       http.addHeader("Content-Type", "application/json");      
-      int httpResponseCode = http.POST("{\"api_key\":\"tPmAT5Ab3j7F9\",\"sensor\":\"BME280\",\"value1\":\"24.25\",\"value2\":\"49.54\",\"value3\":\"1005.14\"}");
-      // int httpResponseCode = http.POST("{\"2\", \"4563\", \"3210\", \"30\", \"21\": \"25\", \"33\", \"9\"}");
-
-      // If you need an HTTP request with a content type: text/plain
-      //http.addHeader("Content-Type", "text/plain");
-      //int httpResponseCode = http.POST("Hello, World!");
+      // int httpResponseCode = http.POST("{\"api_key\":\"tPmAT5Ab3j7F9\",\"sensor\":\"BME280\",\"value1\":\"24.25\",\"value2\":\"49.54\",\"value3\":\"1005.14\"}");
+      
+      /* Data to be sent */
+      String jsonData = "{\"node_id\":\"0x0A\",\"longitude\":\"1456\",\"latitude\":\"7456\",\"internal_humidity\":\"13\",\"external_humidity\":\"25\",\"internal_temperature\":\"25\",\"external_temperature\":\"33\"}";
+      int httpResponseCode = http.POST(jsonData); /* POST request */
      
       Serial.println("Processing POST request");
       Serial.print("HTTP Response code: ");
