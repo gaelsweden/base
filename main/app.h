@@ -19,12 +19,11 @@ extern "C" {
 #define APP_SENDING_MESSAGE_STR         ("LoRa Base Station")
 #define APP_TAG_STR                     ("[$BASE-APP$]:")
 
-#define APP_LORA_PROBE_NB               (30)
-
 /*********** LoRa host station addresses definition *****************************/
-#define APP_LORA_HOST_ADDRESS           (0x10)  /* address of this module       */
-#define APP_LORA_REMOTE_ADDRESS         (0x15)  /* address of the remote module */
+#define APP_LORA_HOST_ADDRESS           (0x01)  /* address of this module       */
+#define APP_LORA_REMOTE_ADDRESS         (0x00)  /* address of the remote module */
 #define APP_LORA_BCAST_ADDRESS          (0xff)  /* address for broadcasting     */
+#define APP_LORA_PROBE_NB               (50)    /* number of probes             */
 
 /*********** LoRa module parameters *********************************************/
 #define APP_LORA_CARRIER_FREQUENCY_HZ   (868E6)
@@ -36,10 +35,9 @@ extern "C" {
 #define APP_LORA_REQUEST_ADDRESS        (15)
 
 /*********** WiFi parameters ****************************************************/
-#define APP_WIFI_SSID                       ("Gaël - iPhone Xʀ")
-#define APP_WIFI_PASSWORD                   ("Gael1234")
+#define APP_WIFI_SSID                       ("BTS_SN_IoT")
+#define APP_WIFI_PASSWORD                   ("BOU_BTS_SN")
 #define APP_WIFI_CONNECTION_TIMEOUT         (10)    /* time before reconnection */
-
 /********************************************************************************/
 
 typedef enum e_bool{

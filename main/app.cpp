@@ -46,7 +46,8 @@ enum e_statusMask{
 
     ST_LORA_STATE_LED                   = 0x00000010,
     ST_LORA_MODULE_LINK_ADDRESS         = 0x00000020,
-    ST_OPEN_VALVE                       = 0x00000040,
+    ST_VALVE_OPEN                       = 0x00000040,
+    ST_VALVE_CLOSE                      = 0x00000080,
 };
 
 static struct s_app{
@@ -130,11 +131,10 @@ void _AppLoRaTask(void*pV){
     (void)pV;
     const char*msg = APP_SENDING_MESSAGE_STR;
     static char buf[128];
-    uint8_t msgLen;
+    // uint8_t msgLen;
     unsigned long lBaseTime = 0;
     unsigned long lElapsedTime;
     unsigned long lCurrentTime;
-
     int address[APP_LORA_PROBE_NB];
 
         ESP_LOGI(TAG, "----------- ENTERING _AppLoRaTask() ------------");
@@ -143,6 +143,18 @@ void _AppLoRaTask(void*pV){
     for(;;){  /******** freeRTOS task perpetual loop **************************************************************/
 
         GetLoop();
+        /* getting valve order from website */
+        int valveOrderLength = GetLoop();
+        printf("valveOrderLength : %d\n", valveOrderLength);
+
+        if(valveOrderLength == 1){                             /* if 35 characters, then sending "true" **********/
+            ESP_LOGI(TAG, "Ouverture de la vanne");
+            mBitsSet(app.m_uStatus, ST_VALVE_OPEN);
+        }
+        else if(valveOrderLength == 2){                        /* if 36 characters, then sending "false" *********/
+            ESP_LOGI(TAG, "Fermeture de la vanne");
+            mBitsSet(app.m_uStatus, ST_VALVE_CLOSE);
+        }
     
         vTaskDelay(50 / portTICK_PERIOD_MS);    /* the task takes place every 50 ms i.e. task sleeps most of the time           */
         lCurrentTime = (unsigned long)(esp_timer_get_time() / 1000ULL); /* get the current kernel time in milliseconds          */
@@ -159,7 +171,7 @@ void _AppLoRaTask(void*pV){
                             address[k] = k;                              /* gives last numbers of address                        */
                             app.m_uProbeAddress = k;
                             sprintf(buf, "%d", k);
-                            printf("new adress (dec): %d\n", k);
+                            printf("New address (dec): %d\n", k);
                             k = APP_LORA_PROBE_NB+1;                     /* if address saved, then no need to continue           */  
                         }
                     }
@@ -167,20 +179,19 @@ void _AppLoRaTask(void*pV){
                     _AppLoraSendData(APP_LORA_REMOTE_ADDRESS, buf);
                     mBitsClr(app.m_uStatus, ST_LORA_MODULE_LINK_ADDRESS);
                 }
-                else if (mIsBitsSet(app.m_uStatus, ST_OPEN_VALVE)){
-                    msg = "15";
-                    mBitsClr(app.m_uStatus, ST_OPEN_VALVE);
-                    sprintf(buf, "%s", msg);                     /* building the message string to send over LoRa radio         */
+                else if(mIsBitsSet(app.m_uStatus, ST_VALVE_OPEN)){
+                    msg = "20";
+                    sprintf(buf, "%s", msg);                     /* building the message string to send back to probe            */
+                    mBitsClr(app.m_uStatus, ST_VALVE_OPEN);
                 }
-                else {
-                    msg = "10";
-                    mBitsSet(app.m_uStatus, ST_OPEN_VALVE);
-                    sprintf(buf, "%s", msg);                     /* building the message string to send over LoRa radio         */
+                else if(mIsBitsSet(app.m_uStatus, ST_VALVE_CLOSE)){
+                    msg = "15";
+                    sprintf(buf, "%s", msg);                     /* building the message string to send back to probe            */
+                    mBitsClr(app.m_uStatus, ST_VALVE_CLOSE);
                 }
 
                 _AppLoraSendData(app.m_uProbeAddress, buf);  /* write the module destination address to LoRa Tx FIFO        */
 
-           
             }   /*                                                                                                              */
         }   /*                                                                                                                  */
         /************************************************************************************************************************/

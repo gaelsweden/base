@@ -12,9 +12,10 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
 #include <../components/Arduino_JSON/src/Arduino_JSON.h>
+#include <iostream>
 
 //Your Domain name with URL path or IP address with path
-const char* getServerName = "http://90.63.226.129:8001/bdd/valveState/";
+const char* getServerName = "http://10.100.0.62:8000/bdd/valveState/"; /* serveur PC */
 
 // the following variables are unsigned longs because the time, measured in
 // milliseconds, will quickly become a bigger number than can be stored in an int.
@@ -31,13 +32,8 @@ String httpGETRequest(const char* getServerName) {
   WiFiClient client;
   HTTPClient http;
 
-//  serverName = serverName;
-    
   // Your Domain name with URL path or IP address with path
   http.begin(client, getServerName);
-  
-  // If you need Node-RED/server authentication, insert user and password below
-  //http.setAuthorization("REPLACE_WITH_SERVER_USERNAME", "REPLACE_WITH_SERVER_PASSWORD");
   
   // Send HTTP POST request
   int httpResponseCode = http.GET();
@@ -60,7 +56,51 @@ String httpGETRequest(const char* getServerName) {
   return payload;
 }
 
-void GetLoop() {
+// void GetLoop() {
+//   //Send an HTTP POST request every 10 minutes
+//   if ((millis() - getLastTime) > getTimerDelay) {
+//     //Check WiFi connection status
+//     if(WiFi.status()== WL_CONNECTED){
+              
+//       sensorReadings = httpGETRequest(getServerName);
+//       Serial.println(sensorReadings);
+//       JSONVar myObject = JSON.parse(sensorReadings);
+  
+//       // JSON.typeof(jsonVar) can be used to get the type of the var
+//       if (JSON.typeof(myObject) == "undefined") {
+//         Serial.println("Parsing input failed!");
+//         return;
+//       }
+    
+//       Serial.print("JSON object = ");
+//       Serial.println(myObject);
+    
+//       // myObject.keys() can be used to get an array of all the keys in the object
+//       JSONVar keys = myObject.keys();
+    
+//       for (int i = 0; i < keys.length(); i++) {
+//         JSONVar value = myObject[keys[i]];
+//         Serial.print(keys[i]);
+//         Serial.print(" = ");
+//         Serial.println(value);
+//         sensorReadingsArr[i] = double(value);
+//       }
+
+//     }
+//     else {
+//       Serial.println("WiFi Disconnected");
+//     }
+//     getLastTime = millis();
+//   }
+// }
+
+
+
+
+int GetLoop() {
+
+  int valveOrderLength;
+
   //Send an HTTP POST request every 10 minutes
   if ((millis() - getLastTime) > getTimerDelay) {
     //Check WiFi connection status
@@ -73,7 +113,7 @@ void GetLoop() {
       // JSON.typeof(jsonVar) can be used to get the type of the var
       if (JSON.typeof(myObject) == "undefined") {
         Serial.println("Parsing input failed!");
-        return;
+        // return EXIT_SUCCESS;
       }
     
       Serial.print("JSON object = ");
@@ -88,12 +128,27 @@ void GetLoop() {
         Serial.print(" = ");
         Serial.println(value);
         sensorReadingsArr[i] = double(value);
-      }
 
+
+        String valveOrder = JSON.stringify(myObject);                 /* converting JSON to string **********************/
+        // printf("valveOrder = %s\n", valveOrder.c_str());       /* getting the number of characters in the string */
+        valveOrderLength = strlen(valveOrder.c_str());         /* saving the number of characters ****************/
+        // printf("%d\n", valveOrderLength);
+
+        if(valveOrderLength == 35){
+          return 1;
+        }
+        else if(valveOrderLength == 36){
+          return 2;
+        }
+      }
     }
     else {
       Serial.println("WiFi Disconnected");
     }
     getLastTime = millis();
   }
+
+     return 0;
+
 }
