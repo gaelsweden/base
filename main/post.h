@@ -13,7 +13,7 @@
 #include <HTTPClient.h>
 
 //Your Domain name with URL path or IP address with path
-const char* postServerName = "http://10.100.0.62:8000/bdd/receiveData/"; /* serveur PC */
+const char* postServerName = "http://10.82.117.207:8000/bdd/receiveData/"; /* serveur PC */
 
 // the following variables are unsigned longs because the time, measured in
 // milliseconds, will quickly become a bigger number than can be stored in an int.
@@ -43,8 +43,7 @@ void PostLoop(char postData[200]) {
       String jsonData = postData;  /* to send data received from probe */
       int httpResponseCode = http.POST(jsonData); /* POST request */
      
-      Serial.println("Processing POST request");
-      Serial.print("HTTP Response code: ");
+      Serial.print("HTTP POST Response code: ");
       Serial.println(httpResponseCode);
         
       // Free resources

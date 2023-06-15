@@ -15,7 +15,8 @@ extern "C" {
 
 /*********** Application parameters *********************************************/
 #define APP_FLASH_LED_PIN               ((gpio_num_t)(4))
-#define APP_SENDING_INTERVAL_MS         (10000)
+#define APP_SENDING_INTERVAL_VALVE      (5000)
+#define APP_SENDING_INTERVAL_DATA       (10000)
 #define APP_SENDING_MESSAGE_STR         ("LoRa Base Station")
 #define APP_TAG_STR                     ("[$BASE-APP$]:")
 
@@ -35,8 +36,8 @@ extern "C" {
 #define APP_LORA_REQUEST_ADDRESS        (15)
 
 /*********** WiFi parameters ****************************************************/
-#define APP_WIFI_SSID                       ("BTS_SN_IoT")
-#define APP_WIFI_PASSWORD                   ("BOU_BTS_SN")
+#define APP_WIFI_SSID                       ("WF-EXT")
+#define APP_WIFI_PASSWORD                   ("WF-EXT2020@")
 #define APP_WIFI_CONNECTION_TIMEOUT         (10)    /* time before reconnection */
 /********************************************************************************/
 

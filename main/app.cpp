@@ -43,11 +43,15 @@ enum e_statusMask{
     ST_LORA_MODULE_TX_DONE_TRIGGERED    = 0x00000002, 
     ST_LORA_MODULE_RX_DONE_TRIGGERED    = 0x00000004,
     ST_LORA_MODULE_REQUEST_ADDRESS      = 0x00000008,
+    ST_LORA_RX_MODE                     = 0x00000200,
+    ST_LORA_TX_MODE                     = 0x00000400,
 
     ST_LORA_STATE_LED                   = 0x00000010,
     ST_LORA_MODULE_LINK_ADDRESS         = 0x00000020,
     ST_VALVE_OPEN                       = 0x00000040,
     ST_VALVE_CLOSE                      = 0x00000080,
+    ST_VALVE_STATE                      = 0x00000100,
+    ST_REQUEST_DATA                     = 0x00000800,
 };
 
 static struct s_app{
@@ -120,6 +124,7 @@ void _AppLoraSendData(uint8_t destAddr, const char * strMessage){
     LoRaEndPacket(TRUE);        /* ending the Tx data packet session, triggering LoRa Tx data packet on radio       */
     ESP_LOGI(TAG, "Sent data to 0x%02x [%s]", destAddr, strMessage);
     mBitsSet(app.m_uStatus, ST_LORA_MODULE_TX_DONE_TRIGGERED);
+    _AppLoRaSetRxMode();
 }
 
 /************************************************************************************************
@@ -131,43 +136,67 @@ void _AppLoRaTask(void*pV){
     (void)pV;
     const char*msg = APP_SENDING_MESSAGE_STR;
     static char buf[128];
-    // uint8_t msgLen;
     unsigned long lBaseTime = 0;
     unsigned long lElapsedTime;
     unsigned long lCurrentTime;
+    unsigned long lBaseTime2 = 0;
+    unsigned long lElapsedTime2;
     int address[APP_LORA_PROBE_NB];
+    int valveOrderLength = 0;
 
         ESP_LOGI(TAG, "----------- ENTERING _AppLoRaTask() ------------");
+    mBitsSet(app.m_uStatus, ST_LORA_RX_MODE);
+    mBitsClr(app.m_uStatus, ST_VALVE_STATE);
+    mBitsClr(app.m_uStatus, ST_VALVE_OPEN);
+    mBitsClr(app.m_uStatus, ST_VALVE_CLOSE);
+    mBitsSet(app.m_uStatus, ST_LORA_MODULE_IS_IN_TX_MODE);
     _AppLoRaSetRxMode();
 
     for(;;){  /******** freeRTOS task perpetual loop **************************************************************/
-
-        GetLoop();
-        /* getting valve order from website */
-        int valveOrderLength = GetLoop();
-        printf("valveOrderLength : %d\n", valveOrderLength);
-
-        if(valveOrderLength == 1){                             /* if 35 characters, then sending "true" **********/
-            ESP_LOGI(TAG, "Ouverture de la vanne");
-            mBitsSet(app.m_uStatus, ST_VALVE_OPEN);
-        }
-        else if(valveOrderLength == 2){                        /* if 36 characters, then sending "false" *********/
-            ESP_LOGI(TAG, "Fermeture de la vanne");
-            mBitsSet(app.m_uStatus, ST_VALVE_CLOSE);
-        }
-    
         vTaskDelay(50 / portTICK_PERIOD_MS);    /* the task takes place every 50 ms i.e. task sleeps most of the time           */
         lCurrentTime = (unsigned long)(esp_timer_get_time() / 1000ULL); /* get the current kernel time in milliseconds          */
-        lElapsedTime =  lCurrentTime - lBaseTime;                  /* processing the elapsed time since the last task execution */
-        
+        lElapsedTime = lCurrentTime - lBaseTime;                   /* processing the elapsed time since the last task execution */
+
+        if(lElapsedTime>=APP_SENDING_INTERVAL_VALVE){   /* if it's time to process sending task...                              */
+            lBaseTime = lCurrentTime;                   /* updating the current time (for the next task execution)              */   
+            valveOrderLength = GetLoop();
+            printf("valveOrderLength : %d", valveOrderLength);
+
+        }
+
+        lElapsedTime2 =  lCurrentTime - lBaseTime2;                 /* processing the elapsed time since the last task execution */
+
+        if(lElapsedTime2>=APP_SENDING_INTERVAL_DATA){      /* if it's time to process sending task...                            */
+            lBaseTime2 = lCurrentTime;                   /* updating the current time (for the next task execution)              */
+            mBitsSet(app.m_uStatus, ST_REQUEST_DATA);
+            mBitsSet(app.m_uStatus, ST_LORA_TX_MODE);
+        }
+
+        /* getting valve order from website */
+
+        if(mIsBitsClr(app.m_uStatus, ST_VALVE_STATE)){
+            if(valveOrderLength == 1){                      /* 1 = open valve order */
+                mBitsSet(app.m_uStatus, ST_VALVE_OPEN);
+                mBitsSet(app.m_uStatus, ST_VALVE_STATE);
+                mBitsSet(app.m_uStatus, ST_LORA_TX_MODE);
+            }
+        }
+        else if(mIsBitsSet(app.m_uStatus, ST_VALVE_STATE)){
+            if(valveOrderLength == 2){                      /* 2 = close valve order */
+                mBitsSet(app.m_uStatus, ST_VALVE_CLOSE);
+                mBitsClr(app.m_uStatus, ST_VALVE_STATE);
+                mBitsSet(app.m_uStatus, ST_LORA_TX_MODE);
+            }
+        }
+                
         /******** Tx Task Processing Section ************************************************************************************/
-        if(lElapsedTime>=APP_SENDING_INTERVAL_MS){      /* if it's time to process sending task...                              */
-             lBaseTime = lCurrentTime;                   /* updating the current time (for the next task execution)              */
+        if(mIsBitsSet(app.m_uStatus, ST_LORA_TX_MODE)) {
             if(LoRaBeginPacket(FALSE)==0){              /* if LoRa module is enabled to process a new Tx packect...             */
 
                 if(mIsBitsSet(app.m_uStatus, ST_LORA_MODULE_LINK_ADDRESS)) {
                     for(int k=2; k<APP_LORA_PROBE_NB; k++){
                         if(address[k] == 0){                             /* saves address if not saved before                    */
+                            delay(100);
                             address[k] = k;                              /* gives last numbers of address                        */
                             app.m_uProbeAddress = k;
                             sprintf(buf, "%d", k);
@@ -176,24 +205,34 @@ void _AppLoRaTask(void*pV){
                         }
                     }
                     printf("Address sent : 0x%02x\n", app.m_uProbeAddress);
+                    delay(500);
                     _AppLoraSendData(APP_LORA_REMOTE_ADDRESS, buf);
                     mBitsClr(app.m_uStatus, ST_LORA_MODULE_LINK_ADDRESS);
+                }
+                else if(mIsBitsSet(app.m_uStatus, ST_REQUEST_DATA)){
+                    msg = "10";
+                    sprintf(buf, "%s", msg);                     /* building the message string to send back to probe            */
+                    mBitsClr(app.m_uStatus, ST_REQUEST_DATA);
+                    _AppLoraSendData(app.m_uProbeAddress, buf);   /* write the module destination address to LoRa Tx FIFO        */
                 }
                 else if(mIsBitsSet(app.m_uStatus, ST_VALVE_OPEN)){
                     msg = "20";
                     sprintf(buf, "%s", msg);                     /* building the message string to send back to probe            */
+                    ESP_LOGI(TAG, "Opening valve");
                     mBitsClr(app.m_uStatus, ST_VALVE_OPEN);
+                    _AppLoraSendData(app.m_uProbeAddress, buf);   /* write the module destination address to LoRa Tx FIFO        */
                 }
                 else if(mIsBitsSet(app.m_uStatus, ST_VALVE_CLOSE)){
                     msg = "15";
                     sprintf(buf, "%s", msg);                     /* building the message string to send back to probe            */
+                    ESP_LOGI(TAG, "Closing valve");
                     mBitsClr(app.m_uStatus, ST_VALVE_CLOSE);
+                    _AppLoraSendData(app.m_uProbeAddress, buf);  /* write the module destination address to LoRa Tx FIFO        */
+
                 }
-
-                _AppLoraSendData(app.m_uProbeAddress, buf);  /* write the module destination address to LoRa Tx FIFO        */
-
-            }   /*                                                                                                              */
-        }   /*                                                                                                                  */
+            }   /*                                                                                                              */  
+            mBitsClr(app.m_uStatus, ST_LORA_TX_MODE); 
+        }                                                                                                            
         /************************************************************************************************************************/
 
         /******* LoRa Tx done event processing **********************************************************************************/
@@ -204,12 +243,13 @@ void _AppLoRaTask(void*pV){
         /************************************************************************************************************************/
 
         /******* LoRa Rx done event processing **********************************************************************************/
-        if(mIsBitsSet(app.m_uStatus, ST_LORA_MODULE_RX_DONE_TRIGGERED)){    /* if LoRa Rx done event has occurred...            */
+        if(mIsBitsSet(app.m_uStatus, ST_LORA_RX_MODE)){    /* if LoRa Rx done event has occurred...            */
+            _AppLoRaSetRxMode(); 
             uint8_t u8DstAddr = LoRaRead();                                             /* get the module destination address   */
             if(u8DstAddr!=app.m_u8HostAddress && u8DstAddr!=APP_LORA_BCAST_ADDRESS){    /* checking destination address...      */
                 ESP_LOGI(TAG, "TTGO has received a data frame not for this station!");  /* address not matching host one        */
             }   /*                                                                                                              */
-            else{                                           /* address matches local host station or it's the broadcast address */
+            else if (u8DstAddr==app.m_u8HostAddress && u8DstAddr!=APP_LORA_BCAST_ADDRESS){                                           /* address matches local host station or it's the broadcast address */
                 ESP_LOGI(TAG, "Received LoRa data: RSSI:%d\tSNR:%f", LoRaPacketRssi(), LoRaPacketSnr()); /* displaying some Rx stats*/
                 uint8_t u8SrcAddr = LoRaRead();             /* retrieves the source host station address                        */
                 uint8_t u8SzData  = LoRaRead();             /* retrieves the data length                                        */
@@ -223,13 +263,14 @@ void _AppLoRaTask(void*pV){
                 switch (atoi(data)) {
                     case 250:
                         mBitsSet(app.m_uStatus, ST_LORA_MODULE_LINK_ADDRESS);
+                        mBitsSet(app.m_uStatus, ST_LORA_TX_MODE);
                         break;
                     default:
                         PostLoop(data);
                         break;
                 }
             }   /*                                                                                                              */
-            mBitsClr(app.m_uStatus, ST_LORA_MODULE_RX_DONE_TRIGGERED);  /* acknowledging the Rx done event                      */
+            //mBitsClr(app.m_uStatus, ST_LORA_MODULE_RX);  /* acknowledging the Rx done event                                   */
         }/*                                                                                                                     */
         /************************************************************************************************************************/
 
