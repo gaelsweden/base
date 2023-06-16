@@ -15,8 +15,8 @@ extern "C" {
 
 /*********** Application parameters *********************************************/
 #define APP_FLASH_LED_PIN               ((gpio_num_t)(4))
-#define APP_SENDING_INTERVAL_VALVE      (5000)
-#define APP_SENDING_INTERVAL_DATA       (10000)
+#define APP_SENDING_INTERVAL_VALVE      (6333)
+#define APP_SENDING_INTERVAL_DATA       (15000)
 #define APP_SENDING_MESSAGE_STR         ("LoRa Base Station")
 #define APP_TAG_STR                     ("[$BASE-APP$]:")
 

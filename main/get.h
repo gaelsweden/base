@@ -15,7 +15,7 @@
 #include <iostream>
 
 //Your Domain name with URL path or IP address with path
-const char* getServerName = "http://10.82.117.207:8000/bdd/valveState/"; /* serveur PC */
+const char* getServerName = "http://10.82.118.236:8000/bdd/valveState/"; /* serveur PC */
 
 // the following variables are unsigned longs because the time, measured in
 // milliseconds, will quickly become a bigger number than can be stored in an int.
@@ -91,10 +91,10 @@ int GetLoop() {
         String valveOrder = JSON.stringify(myObject);                 /* converting JSON to string **********************/
         valveOrderLength = strlen(valveOrder.c_str());         /* saving the number of characters ****************/
 
-        if(valveOrderLength == 35){
+        if(valveOrderLength == 35){ /* 35 = order to open */
           return 1;
         }
-        else if(valveOrderLength == 36){
+        else if(valveOrderLength == 36){  /* 36 = order to close */
           return 2;
         }
       }
