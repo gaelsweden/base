@@ -1,14 +1,3 @@
-/*
-  Rui Santos
-  Complete project details at Complete project details at https://RandomNerdTutorials.com/esp32-http-get-post-arduino/
-
-  Permission is hereby granted, free of charge, to any person obtaining a copy
-  of this software and associated documentation files.
-
-  The above copyright notice and this permission notice shall be included in all
-  copies or substantial portions of the Software.
-*/
-
 #include <WiFi.h>
 #include <HTTPClient.h>
 #include <../components/Arduino_JSON/src/Arduino_JSON.h>
@@ -57,9 +46,8 @@ String httpGETRequest(const char* getServerName) {
   return payload;
 }
 
-int GetLoop() {
 
-  int valveOrderLength;
+int GetLoop() {
 
   //Send an HTTP POST request every 10 minutes
   if ((millis() - getLastTime) > getTimerDelay) {
@@ -90,14 +78,30 @@ int GetLoop() {
 
 
         String valveOrder = JSON.stringify(myObject);          /* converting JSON to string **********************/
-        valveOrderLength = strlen(valveOrder.c_str());         /* saving the number of characters ****************/
 
-        if(valveOrderLength == 35){       /* 35 = order to open */
-          return 1;
-        }
-        else if(valveOrderLength == 36){  /* 36 = order to close */
-          return 2;
-        }
+        int k = 1;
+        int m = 1;
+        printf("valveOrder[16] & [23] & [41] & [42] = %c & %c & %c & %c & %c\n",valveOrder[16], valveOrder[23], valveOrder[41], valveOrder[42]);
+
+        if((valveOrder[16] == 'A') || (valveOrder[16] == 'a')){
+          printf("Première boucle\n");
+          if((valveOrder[36] == 't') && (k = 1)){
+            k=2;
+            return 1;   /* valve = true*/
+          }
+          if((valveOrder[36] == 'f') && (k = 2)){
+            k=1;
+            return 2;   /* valve = false */
+          }
+          if(((valveOrder[41] == 't') || (valveOrder[42] == 't')) && (m = 1)){
+            m=2;
+            return 3;   /* pump = true */
+          }
+          if(((valveOrder[41] == 'f') || (valveOrder[42] == 'f')) && (m = 2)){
+            m=1;
+            return 4;   /* pump = false */
+          }
+        } 
       }
     }
     else {

@@ -37,8 +37,7 @@ void PostLoop(char postData[200], int postCode) {
       if(postCode == 1){
         http.begin(client, postServerName);
       }
-      if((postCode == 2)||(postCode == 3)){
-        printf("postCode = %d\n", postCode);
+      if((postCode == 2) || (postCode == 3) || (postCode == 4) || (postCode == 5)){
         http.begin(client, postValveState);
       }
 
@@ -53,11 +52,18 @@ void PostLoop(char postData[200], int postCode) {
         // String jsonData = "{\"node_id\":\"0x1B\",\"longitude\":\"1.313292\",\"latitude\":\"44.031909\",\"internal_humidity\":\"15\",\"external_humidity\":\"37\",\"internal_temperature\":\"27\",\"external_temperature\":\"33\"}"; /* example to send values */
       }
       else if(postCode == 2){
-        jsonData = "{\"node_id\": \"0x21\", \"valve_state\": \"on\"}";
+        jsonData = "{\"node_id\": \"0x1A\", \"valve_state\": \"on\"}";  /* valve open   */
       }
       else if(postCode == 3){
-        jsonData = "{\"node_id\": \"0x21\", \"valve_state\": \"off\"}";
+        jsonData = "{\"node_id\": \"0x1A\", \"valve_state\": \"off\"}"; /* valve closed */
       }
+      else if(postCode == 4){
+        jsonData = "{\"node_id\": \"0x1C\", \"valve_state\": \"on\"}";  /* pump open    */
+      }
+      else if(postCode == 5){
+        jsonData = "{\"node_id\": \"0x1C\", \"valve_state\": \"off\"}"; /* pump closed  */
+      }
+
      
       int httpResponseCode = http.POST(jsonData);      /* POST request */
 

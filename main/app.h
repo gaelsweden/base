@@ -23,6 +23,9 @@ extern "C" {
 /*********** LoRa host station addresses definition *****************************/
 #define APP_LORA_HOST_ADDRESS           (0x01)  /* address of this module       */
 #define APP_LORA_REMOTE_ADDRESS         (0x00)  /* address of the remote module */
+#define APP_LORA_VALVE_ADDRESS          (0x1A)  /* valve module address         */
+#define APP_LORA_PROBE_ADDRESS          (0x1B)  /* probe module address         */
+#define APP_LORA_PUMP_ADDRESS           (0x1C)  /* pump module address          */
 #define APP_LORA_BCAST_ADDRESS          (0xff)  /* address for broadcasting     */
 #define APP_LORA_PROBE_NB               (50)    /* number of probes             */
 

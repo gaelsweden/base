@@ -43,15 +43,19 @@ enum e_statusMask{
     ST_LORA_MODULE_TX_DONE_TRIGGERED    = 0x00000002, 
     ST_LORA_MODULE_RX_DONE_TRIGGERED    = 0x00000004,
     ST_LORA_MODULE_REQUEST_ADDRESS      = 0x00000008,
-    ST_LORA_RX_MODE                     = 0x00000200,
-    ST_LORA_TX_MODE                     = 0x00000400,
+    ST_LORA_RX_MODE                     = 0x00000010,
+    ST_LORA_TX_MODE                     = 0x00000020,
 
-    ST_LORA_STATE_LED                   = 0x00000010,
-    ST_LORA_MODULE_LINK_ADDRESS         = 0x00000020,
-    ST_VALVE_OPEN                       = 0x00000040,
-    ST_VALVE_CLOSE                      = 0x00000080,
-    ST_VALVE_STATE                      = 0x00000100,
-    ST_REQUEST_DATA                     = 0x00000800,
+    ST_LORA_STATE_LED                   = 0x00000040,
+    ST_LORA_MODULE_LINK_ADDRESS         = 0x00000080,
+    ST_VALVE_OPEN                       = 0x00000100,
+    ST_VALVE_CLOSE                      = 0x00000200,
+    ST_VALVE_STATE                      = 0x00000400,
+    ST_PUMP_OPEN                        = 0x00000800,
+    ST_PUMP_CLOSE                       = 0x00001000,
+    ST_PUMP_STATE                       = 0x00002000,
+    ST_REQUEST_DATA                     = 0x00004000,
+
 };
 
 static struct s_app{
@@ -147,8 +151,11 @@ void _AppLoRaTask(void*pV){
         ESP_LOGI(TAG, "----------- ENTERING _AppLoRaTask() ------------");
     mBitsSet(app.m_uStatus, ST_LORA_RX_MODE);
     mBitsClr(app.m_uStatus, ST_VALVE_STATE);
+    mBitsClr(app.m_uStatus, ST_PUMP_STATE);
     mBitsClr(app.m_uStatus, ST_VALVE_OPEN);
     mBitsClr(app.m_uStatus, ST_VALVE_CLOSE);
+    mBitsClr(app.m_uStatus, ST_PUMP_OPEN);
+    mBitsClr(app.m_uStatus, ST_PUMP_CLOSE);
     mBitsSet(app.m_uStatus, ST_LORA_MODULE_IS_IN_TX_MODE);
     _AppLoRaSetRxMode();
 
@@ -160,6 +167,7 @@ void _AppLoRaTask(void*pV){
         if(lElapsedTime>=APP_SENDING_INTERVAL_VALVE){   /* if it's time to process sending task...                              */
             lBaseTime = lCurrentTime;                   /* updating the current time (for the next task execution)              */   
             valveOrderLength = GetLoop();
+            printf("valveOrderLength = %d\n", valveOrderLength);
         }
 
         lElapsedTime2 =  lCurrentTime - lBaseTime2;                 /* processing the elapsed time since the last task execution */
@@ -179,12 +187,26 @@ void _AppLoRaTask(void*pV){
         }
         else if(mIsBitsSet(app.m_uStatus, ST_VALVE_STATE)){
             if(valveOrderLength == 2){                      /* 2 = close valve order */
-                // PostLoop(NULL, 3);
                 mBitsSet(app.m_uStatus, ST_VALVE_CLOSE);
                 mBitsClr(app.m_uStatus, ST_VALVE_STATE);
                 mBitsSet(app.m_uStatus, ST_LORA_TX_MODE);
             }
         }
+        if(mIsBitsClr(app.m_uStatus, ST_PUMP_STATE)){
+            if(valveOrderLength == 3){                      /* 3 = close pump order  */
+                mBitsSet(app.m_uStatus, ST_PUMP_OPEN);
+                mBitsSet(app.m_uStatus, ST_PUMP_STATE);
+                mBitsSet(app.m_uStatus, ST_LORA_TX_MODE);
+            }
+        }
+        else if(mIsBitsSet(app.m_uStatus, ST_PUMP_STATE)){
+            if(valveOrderLength == 4){                      /* 4 = close pump order  */
+                mBitsSet(app.m_uStatus, ST_PUMP_CLOSE);
+                mBitsClr(app.m_uStatus, ST_PUMP_STATE);
+                mBitsSet(app.m_uStatus, ST_LORA_TX_MODE);
+            }
+        }
+
                 
         /******** Tx Task Processing Section ************************************************************************************/
         if(mIsBitsSet(app.m_uStatus, ST_LORA_TX_MODE)) {
@@ -210,22 +232,35 @@ void _AppLoRaTask(void*pV){
                     msg = "10";
                     sprintf(buf, "%s", msg);                     /* building the message string to send back to probe           */
                     mBitsClr(app.m_uStatus, ST_REQUEST_DATA);
-                    _AppLoraSendData(app.m_uProbeAddress, buf);   /* write the module destination address to LoRa Tx FIFO       */
+                    _AppLoraSendData(APP_LORA_PROBE_ADDRESS, buf);   /* write the module destination address to LoRa Tx FIFO       */
                 }
                 else if(mIsBitsSet(app.m_uStatus, ST_VALVE_OPEN)){
                     msg = "20";
                     sprintf(buf, "%s", msg);                     /* building the message string to send back to probe           */
                     ESP_LOGI(TAG, "Opening valve");
                     mBitsClr(app.m_uStatus, ST_VALVE_OPEN);
-                    _AppLoraSendData(app.m_uProbeAddress, buf);   /* write the module destination address to LoRa Tx FIFO       */
+                    _AppLoraSendData(APP_LORA_VALVE_ADDRESS, buf);   /* write the module destination address to LoRa Tx FIFO       */
                 }
                 else if(mIsBitsSet(app.m_uStatus, ST_VALVE_CLOSE)){
                     msg = "15";
                     sprintf(buf, "%s", msg);                     /* building the message string to send back to probe           */
                     ESP_LOGI(TAG, "Closing valve");
                     mBitsClr(app.m_uStatus, ST_VALVE_CLOSE);
-                    _AppLoraSendData(app.m_uProbeAddress, buf);  /* write the module destination address to LoRa Tx FIFO        */
-
+                    _AppLoraSendData(APP_LORA_VALVE_ADDRESS, buf);  /* write the module destination address to LoRa Tx FIFO        */
+                }
+                else if(mIsBitsSet(app.m_uStatus, ST_PUMP_OPEN)){
+                    msg = "25";
+                    sprintf(buf, "%s", msg);                     /* building the message string to send back to probe           */
+                    ESP_LOGI(TAG, "Opening pump");
+                    mBitsClr(app.m_uStatus, ST_PUMP_OPEN);
+                    _AppLoraSendData(APP_LORA_PUMP_ADDRESS, buf);   /* write the module destination address to LoRa Tx FIFO       */
+                }
+                else if(mIsBitsSet(app.m_uStatus, ST_PUMP_CLOSE)){
+                    msg = "30";
+                    sprintf(buf, "%s", msg);                     /* building the message string to send back to probe           */
+                    ESP_LOGI(TAG, "Closing pump");
+                    mBitsClr(app.m_uStatus, ST_PUMP_CLOSE);
+                    _AppLoraSendData(APP_LORA_PUMP_ADDRESS, buf);  /* write the module destination address to LoRa Tx FIFO        */
                 }
             }   /*                                                                                                              */  
             mBitsClr(app.m_uStatus, ST_LORA_TX_MODE); 
@@ -257,7 +292,6 @@ void _AppLoRaTask(void*pV){
                 data[u8SzData]='\0';                        /* placing the null character string terminator                     */
                 ESP_LOGI(TAG, "dstAddr: 0x%02X srcAddr: 0x%02X Raw message content: \"%s\"", u8DstAddr, u8SrcAddr, data);   /*  */
 
-                int test;
                 switch (atoi(data)) {
                     case 250:
                         mBitsSet(app.m_uStatus, ST_LORA_MODULE_LINK_ADDRESS);
@@ -272,6 +306,7 @@ void _AppLoRaTask(void*pV){
                         PostLoop(NULL, 3);
                         break;
                     default:            /* if no code is sent, then data temperature, etc */
+                        delay(100);
                         PostLoop(data, 1);
                         break;
                 }
