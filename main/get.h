@@ -16,6 +16,8 @@
 
 //Your Domain name with URL path or IP address with path
 const char* getServerName = "http://10.82.118.236:8000/bdd/valveState/"; /* serveur PC */
+// const char* getServerName = "http://10.100.1.15:8001/bdd/valveState/"; /* serveur PC */
+
 
 // the following variables are unsigned longs because the time, measured in
 // milliseconds, will quickly become a bigger number than can be stored in an int.
@@ -71,7 +73,6 @@ int GetLoop() {
       // JSON.typeof(jsonVar) can be used to get the type of the var
       if (JSON.typeof(myObject) == "undefined") {
         Serial.println("Parsing input failed!");
-        // return EXIT_SUCCESS;
       }
     
       // Serial.print("JSON object = ");
@@ -88,10 +89,10 @@ int GetLoop() {
         sensorReadingsArr[i] = double(value);
 
 
-        String valveOrder = JSON.stringify(myObject);                 /* converting JSON to string **********************/
+        String valveOrder = JSON.stringify(myObject);          /* converting JSON to string **********************/
         valveOrderLength = strlen(valveOrder.c_str());         /* saving the number of characters ****************/
 
-        if(valveOrderLength == 35){ /* 35 = order to open */
+        if(valveOrderLength == 35){       /* 35 = order to open */
           return 1;
         }
         else if(valveOrderLength == 36){  /* 36 = order to close */
@@ -104,7 +105,5 @@ int GetLoop() {
     }
     getLastTime = millis();
   }
-
      return 0;
-
 }

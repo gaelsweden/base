@@ -179,6 +179,7 @@ void _AppLoRaTask(void*pV){
         }
         else if(mIsBitsSet(app.m_uStatus, ST_VALVE_STATE)){
             if(valveOrderLength == 2){                      /* 2 = close valve order */
+                // PostLoop(NULL, 3);
                 mBitsSet(app.m_uStatus, ST_VALVE_CLOSE);
                 mBitsClr(app.m_uStatus, ST_VALVE_STATE);
                 mBitsSet(app.m_uStatus, ST_LORA_TX_MODE);
@@ -256,16 +257,19 @@ void _AppLoRaTask(void*pV){
                 data[u8SzData]='\0';                        /* placing the null character string terminator                     */
                 ESP_LOGI(TAG, "dstAddr: 0x%02X srcAddr: 0x%02X Raw message content: \"%s\"", u8DstAddr, u8SrcAddr, data);   /*  */
 
+                int test;
                 switch (atoi(data)) {
                     case 250:
                         mBitsSet(app.m_uStatus, ST_LORA_MODULE_LINK_ADDRESS);
                         mBitsSet(app.m_uStatus, ST_LORA_TX_MODE);
                         break;
                     case 2:             /* code to send back valve_state = open           */
-                        PostLoop(data, 2);
+                        delay(100);
+                        PostLoop(NULL, 2);
                         break;
                     case 3:             /* code to send back valve_state = closed         */
-                        PostLoop(data, 3);
+                        delay(100);
+                        PostLoop(NULL, 3);
                         break;
                     default:            /* if no code is sent, then data temperature, etc */
                         PostLoop(data, 1);

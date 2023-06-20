@@ -38,6 +38,7 @@ void PostLoop(char postData[200], int postCode) {
         http.begin(client, postServerName);
       }
       if((postCode == 2)||(postCode == 3)){
+        printf("postCode = %d\n", postCode);
         http.begin(client, postValveState);
       }
 
