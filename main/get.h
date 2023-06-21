@@ -18,6 +18,8 @@ unsigned long getTimerDelay = 5000;
 
 String sensorReadings;
 float sensorReadingsArr[3];
+int k = 1;
+int m = 1;
 
 String httpGETRequest(const char* getServerName) {
   WiFiClient client;
@@ -76,28 +78,22 @@ int GetLoop() {
         // Serial.println(value);
         sensorReadingsArr[i] = double(value);
 
-
         String valveOrder = JSON.stringify(myObject);          /* converting JSON to string **********************/
 
-        int k = 1;
-        int m = 1;
-        printf("valveOrder[16] & [23] & [41] & [42] = %c & %c & %c & %c & %c\n",valveOrder[16], valveOrder[23], valveOrder[41], valveOrder[42]);
-
         if((valveOrder[16] == 'A') || (valveOrder[16] == 'a')){
-          printf("Première boucle\n");
-          if((valveOrder[36] == 't') && (k = 1)){
+          if((valveOrder[36] == 't') && (k == 1)){
             k=2;
             return 1;   /* valve = true*/
           }
-          if((valveOrder[36] == 'f') && (k = 2)){
+          if((valveOrder[36] == 'f') && (k == 2)){
             k=1;
             return 2;   /* valve = false */
           }
-          if(((valveOrder[41] == 't') || (valveOrder[42] == 't')) && (m = 1)){
+          if(((valveOrder[41] == 't') || (valveOrder[42] == 't')) && (m == 1)){
             m=2;
             return 3;   /* pump = true */
           }
-          if(((valveOrder[41] == 'f') || (valveOrder[42] == 'f')) && (m = 2)){
+          if(((valveOrder[41] == 'f') || (valveOrder[42] == 'f')) && (m == 2)){
             m=1;
             return 4;   /* pump = false */
           }

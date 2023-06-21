@@ -167,7 +167,6 @@ void _AppLoRaTask(void*pV){
         if(lElapsedTime>=APP_SENDING_INTERVAL_VALVE){   /* if it's time to process sending task...                              */
             lBaseTime = lCurrentTime;                   /* updating the current time (for the next task execution)              */   
             valveOrderLength = GetLoop();
-            printf("valveOrderLength = %d\n", valveOrderLength);
         }
 
         lElapsedTime2 =  lCurrentTime - lBaseTime2;                 /* processing the elapsed time since the last task execution */
@@ -207,7 +206,6 @@ void _AppLoRaTask(void*pV){
             }
         }
 
-                
         /******** Tx Task Processing Section ************************************************************************************/
         if(mIsBitsSet(app.m_uStatus, ST_LORA_TX_MODE)) {
             if(LoRaBeginPacket(FALSE)==0){              /* if LoRa module is enabled to process a new Tx packect...             */
@@ -304,6 +302,14 @@ void _AppLoRaTask(void*pV){
                     case 3:             /* code to send back valve_state = closed         */
                         delay(100);
                         PostLoop(NULL, 3);
+                        break;
+                    case 4:
+                        delay(100);
+                        PostLoop(NULL, 4);
+                        break;
+                    case 5:
+                        delay(100);
+                        PostLoop(NULL, 5);
                         break;
                     default:            /* if no code is sent, then data temperature, etc */
                         delay(100);
