@@ -144,6 +144,8 @@ void _AppLoRaTask(void*pV){
     unsigned long lCurrentTime;
     unsigned long lBaseTime2 = 0;
     unsigned long lElapsedTime2;
+    unsigned long lBaseTime3 = 0;
+    unsigned long lElapsedTime3;
     int address[APP_LORA_PROBE_NB];
     int valveOrderLength = 0;
 
@@ -170,13 +172,21 @@ void _AppLoRaTask(void*pV){
             }
         }
 
-        lElapsedTime2 =  lCurrentTime - lBaseTime2;                 /* processing the elapsed time since the last task execution */
+        lElapsedTime2 = lCurrentTime - lBaseTime2;      /* processing the elapsed time since the last task execution            */
 
-        if(lElapsedTime2>=APP_SENDING_INTERVAL_DATA){      /* if it's time to process sending task...                            */
+        if(lElapsedTime2>=APP_SENDING_INTERVAL_DATA){    /* if it's time to process sending task...                              */
             lBaseTime2 = lCurrentTime;                   /* updating the current time (for the next task execution)              */
             if(mIsBitsClr(app.m_uStatus, ST_AVOID_MSG_COLLISION)){
                 mBitsSet(app.m_uStatus, ST_REQUEST_DATA);
                 mBitsSet(app.m_uStatus, ST_LORA_TX_MODE);
+            }
+        }
+
+        lElapsedTime3 = lCurrentTime - lBaseTime3; 
+
+        if(lElapsedTime3>=10000){    /* if it's time to process sending task...                              */
+            if(mIsBitsSet(app.m_uStatus, ST_AVOID_MSG_COLLISION)){
+                mBitsClr(app.m_uStatus, ST_AVOID_MSG_COLLISION);
             }
         }
 
@@ -186,6 +196,7 @@ void _AppLoRaTask(void*pV){
                 mBitsSet(app.m_uStatus, ST_VALVE_STATE);
                 mBitsSet(app.m_uStatus, ST_LORA_TX_MODE);
                 mBitsSet(app.m_uStatus, ST_AVOID_MSG_COLLISION);
+                lBaseTime3 = lCurrentTime; 
             }
         }
         else if(mIsBitsSet(app.m_uStatus, ST_VALVE_STATE)){
@@ -194,6 +205,7 @@ void _AppLoRaTask(void*pV){
                 mBitsClr(app.m_uStatus, ST_VALVE_STATE);
                 mBitsSet(app.m_uStatus, ST_LORA_TX_MODE);
                 mBitsSet(app.m_uStatus, ST_AVOID_MSG_COLLISION);
+                lBaseTime3 = lCurrentTime; 
             }
         }
         if(mIsBitsClr(app.m_uStatus, ST_PUMP_STATE)){
@@ -202,6 +214,7 @@ void _AppLoRaTask(void*pV){
                 mBitsSet(app.m_uStatus, ST_PUMP_STATE);
                 mBitsSet(app.m_uStatus, ST_LORA_TX_MODE);
                 mBitsSet(app.m_uStatus, ST_AVOID_MSG_COLLISION);
+                lBaseTime3 = lCurrentTime; 
             }
         }
         else if(mIsBitsSet(app.m_uStatus, ST_PUMP_STATE)){
@@ -210,6 +223,7 @@ void _AppLoRaTask(void*pV){
                 mBitsClr(app.m_uStatus, ST_PUMP_STATE);
                 mBitsSet(app.m_uStatus, ST_LORA_TX_MODE);
                 mBitsSet(app.m_uStatus, ST_AVOID_MSG_COLLISION);
+                lBaseTime3 = lCurrentTime; 
             }
         }
 
@@ -348,7 +362,6 @@ void AppInit(void){
     /******* Flash led initializing ***************************/
     gpio_reset_pin(APP_FLASH_LED_PIN);
     gpio_set_direction(APP_FLASH_LED_PIN, GPIO_MODE_OUTPUT);
-
 
     /******* LoRa module parametrization ************************/
     LoRaBegin(APP_LORA_CARRIER_FREQUENCY_HZ);           /*      */
